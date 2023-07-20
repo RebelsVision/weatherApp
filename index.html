@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="style.css">
+        <title>Simple Weather App</title>
+    </head>
+    <body>
+        <div class="video">
+        <iframe class="video" width="200" height="150" src="https://www.youtube.com/embed/vak4yxPzC8Q?start=3&autoplay=1" frameborder="0" allow="accelerometer; allow=autoplay; clipboard-write; encrypted-media; gyroscope; web-share" allowfullscreen></iframe>
+    </div>
+        <div class="card">
+        <div><h2 id="time"></h1></div>
+    <div class="search">
+        <input id="searchBarText" type="text" placeholder="Enter City Name" spellcheck="false" name="Enter City Name" id="form">
+        <button><img src="./assets/images/weatherIcon.png"></button>
+    </div>
+    <div class="error">
+        <p>Invalid City Name</p>
+    </div>
+    <div class="weather">
+        <h1 class="city">New Jersey</h2>
+            <h3 class="time">8:00pm</h3>
+            <img src="assets/images/clear.png" class="weather-icon">
+            <h2 class="temp">82°</h1>
+                <p class="weatherStatus">Clear</p>
+                <p class="feelsLike">92%</p>
+        <div><img class="lineBreak" src="assets/images/line.png"></div>
+        <div class="details">
+            <div class="col">
+                <img src="assets/images/humidityBW.png">
+                <div>
+                    <h4>Humidity<h4>
+                    <p class="humidity">50%</p>
+                </div>
+            </div> 
+            <div class="col">
+                <img src="assets/images/wind.png">
+                <div>
+                    <h4>Wind</h4>
+                    <p class="wind">15mph</p>
+                </div>
+            </div>
+        </div>
+<script>
+
+//Creating time component at the top of the card
+    const now = new Date();
+    const hours = now.getHours();
+    const ft = now.toLocaleString("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true
+    });
+        document.getElementById("time").innerHTML = `${ft} Eastern  `;
+
+        //Variables created for API request//
+    const apiKey = "cb4208a5668d112b0021b2a90453e600";
+    const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=imperial&q=";
+    
+    const searchBox = document.querySelector(".search input");
+    const searchBtn = document.querySelector(".search button");
+    const weatherIcon = document.querySelector(".weather-icon");
+    
+    async function checkWeather(city){
+        const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
+        
+        if(response.status == 404) {
+            document.querySelector(".error").style.display = "block";
+            document.querySelector(".weather").style.display = "none";
+            document.querySelector(".quote").style.display = "none";
+
+            console.log(data);
+        } else{
+            
+        const data = await response.json();
+        console.log(data)
+        
+        document.querySelector(".city").innerHTML = data.name;
+        document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°F"
+        document.querySelector(".time").innerHTML = `${ft}`;
+            document.querySelector(".feelsLike").innerHTML = "Feels like: " + Math.round(data.main.feels_like) + "°F";
+            document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+            document.querySelector(".wind").innerHTML = data.wind.speed + " Mph";
+            document.querySelector(".weatherStatus").innerHTML = data.weather[0].main;
+
+//Humidity changing based on it's percentage
+            if(data.main.humidity >= 50){
+                document.querySelector(".humidity").style.color = "salmon";
+            } else if(data.main.humidity <= 30){
+                document.querySelector(".humidity").style.color = "#80b1b6";
+            }
+
+//Weather font changing based on if it is very high or low
+            if((Math.round(data.main.temp) >= 35 && Math.round(data.main.temp) <= 90)){
+                document.querySelector(".temp").style.color = "#000";
+            } else if(Math.round(data.main.temp >= 90)){
+                document.querySelector(".temp").style.color = "salmon";
+            }
+            else if(Math.round(data.main.temp <= 30)){
+                document.querySelector(".temp").style.color = "#63abd1d3";
+            }
+
+
+//Figure out why these alerts aren't working for this if statement
+            
+            if(data.weather[0].main == "Clouds" && (Math.round(data.main.temp) >= 35 && Math.round(data.main.temp) <= 90)) {
+                weatherIcon.src = "assets/images/cloud.png"; 
+            }
+            else if(data.weather[0].main == "Clear" && (Math.round(data.main.temp) >= 35 && Math.round(data.main.temp) <= 90)) {
+                weatherIcon.src = "assets/images/sun.png"; 
+            } else if(data.weather[0].main == "Clear" && Math.round(data.main.temp >= 90)) {
+                weatherIcon.src = "assets/images/sun.png";
+                alert("It's scorching outside, bring water!");
+            } 
+            else if((data.weather[0].main == "Clear" || data.weather[0].main == "Snow") && Math.round(data.main.temp <= 35)) {
+                weatherIcon.src = "assets/images/tempDrop.png";
+                alert("Baby it's cold outside! Bundle up!");
+            } else if(Math.round(data.main.temp >= 90)) {
+                weatherIcon.src = "assets/images/highTemp.png";
+                alert("It's scorching outside, bring water!");
+            } else if(data.weather[0].main == "Rain") {
+                weatherIcon.src = "assets/images/rain2.png";
+                alert("Don't forget your umbrella");
+            } else if(data.weather[0].main == "Drizzle") {
+                weatherIcon.src = "assets/images/drizzle.png";
+                alert("Don't forget your umbrella");
+            } else if(data.weather[0].main == "Lightning"){
+                weatherIcon.src = "assets/images/lightning.png";
+                alert("Take cover, there is lightning outside!");
+            } else if(data.weather[0].main == "Snow") {
+                weatherIcon.src = "assets/images/snow.png";
+                alert("Dress warm and grab your gloves");
+            } else if(data.weather[0].main == "Mist") {
+                weatherIcon.src = "assets/images/mist.png";
+                alert("Rain may be coming, be prepared!");
+            } 
+            
+            document.querySelector(".weather").style.display = "block";
+            document.querySelector(".error").style.display = "none";
+            document.querySelector("#time").style.display = "none";
+            //How to change left side time after city submission - Try to tweak and add a new feature//
+            // document.querySelector("#time").innerHTML = `Here is the weather for ${city}`;
+
+        }
+    };
+    
+    searchBtn.addEventListener("click", ()=>{
+        checkWeather(searchBox.value);
+        // document.getElementById(form).innerHTML= "Enter City Name";
+    });
+    
+    colorBox();
+    checkWeather();
+
+    
+</script>
+<!-- <script src="assets/JS/app.js"></script> -->
+</body>
+</html>
